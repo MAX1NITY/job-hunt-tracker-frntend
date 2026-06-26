@@ -15,6 +15,9 @@ export default function ContactCard({ contact, onEdit, onDelete }) {
         <div className="contact-card__info">
           <h3 className="contact-card__name">{contact.name}</h3>
           <p className="contact-card__sub">{contact.role}{contact.role && contact.company ? ' · ' : ''}{contact.company}</p>
+          {contact.email && (
+            <a href={`mailto:${contact.email}`} className="contact-card__email">{contact.email}</a>
+          )}
         </div>
         <StatusBadge status={contact.status} />
       </div>

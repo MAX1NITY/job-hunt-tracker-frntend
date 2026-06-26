@@ -43,6 +43,16 @@
   margin: 0;
 }
 
+.contact-card__email {
+  font-size: 12px;
+  color: var(--accent-light);
+  text-decoration: none;
+}
+
+.contact-card__email:hover {
+  text-decoration: underline;
+}
+
 .contact-card__notes {
   font-size: 13px;
   color: var(--text-muted);
