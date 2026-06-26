@@ -7,6 +7,7 @@ const EMPTY = {
   name: '',
   role: '',
   company: '',
+  email: '',
   linkedinUrl: '',
   status: 'Not Contacted',
   followUpDate: '',
@@ -81,16 +82,29 @@ export default function ContactForm({ contact, onSave, onClose, saving = false }
             </label>
           </div>
 
-          <label className="form-label">
-            LinkedIn URL
-            <input
-              className="form-input"
-              name="linkedinUrl"
-              value={form.linkedinUrl}
-              onChange={handleChange}
-              placeholder="https://linkedin.com/in/..."
-            />
-          </label>
+          <div className="form-row">
+            <label className="form-label">
+              Email
+              <input
+                className="form-input"
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="hiring@company.com"
+              />
+            </label>
+            <label className="form-label">
+              LinkedIn URL
+              <input
+                className="form-input"
+                name="linkedinUrl"
+                value={form.linkedinUrl}
+                onChange={handleChange}
+                placeholder="https://linkedin.com/in/..."
+              />
+            </label>
+          </div>
 
           <label className="form-label">
             Follow-up Date

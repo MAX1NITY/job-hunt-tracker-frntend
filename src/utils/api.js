@@ -1,10 +1,19 @@
+import { supabase } from '../lib/supabase'
+
 const BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000').replace(/\/$/, '')
 
 async function request(path, options = {}) {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) throw new Error('Not authenticated')
+
   const res = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`,
+    },
     ...options,
   })
+
   if (!res.ok) {
     const text = await res.text()
     throw new Error(text || `HTTP ${res.status}`)

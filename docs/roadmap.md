@@ -16,12 +16,24 @@
 - [x] Dashboard summary bar (count per status)
 - [x] Follow-up date display + highlight overdue
 
-## Phase 2 — Backend (FastAPI + Supabase) ✓
+## Phase 2 — Auth + Backend (FastAPI + Supabase) ✓
+
+## Phase 2 — Auth + Backend (FastAPI + Supabase)
 
 - [x] Set up Supabase project and contacts table
 - [x] FastAPI backend with CRUD endpoints
 - [x] Swap localStorage for API calls
 - [x] Deploy backend (Vercel)
+- [ ] Add email field to contacts table in Supabase
+- [ ] Add email field to contact form on frontend
+- [ ] Enable Google OAuth in Supabase Auth dashboard
+- [ ] Add user_id foreign key to contacts table
+- [ ] Enable Row Level Security (RLS) on contacts table
+- [ ] RLS policy: users can only read/write their own rows
+- [ ] Protect all FastAPI endpoints with JWT from Supabase Auth
+- [ ] Google Sign In button on frontend
+- [ ] Redirect to dashboard after login
+- [ ] Each user sees only their own contacts
 
 ## Phase 3 — Polish + Deploy ✓
 

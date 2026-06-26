@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { fetchContacts, createContact, updateContact, deleteContact } from '../utils/api'
 import { useToast } from '../hooks/useToast'
+import { useAuth } from '../hooks/useAuth'
 import ContactCard from '../components/ContactCard'
 import ContactCardSkeleton from '../components/ContactCardSkeleton'
 import ContactForm from '../components/ContactForm'
@@ -19,6 +20,7 @@ export default function ContactsPage() {
   const [modal, setModal] = useState(null) // null | 'add' | contact object
   const [saving, setSaving] = useState(false)
   const { toasts, showToast } = useToast()
+  const { user, signOut } = useAuth()
 
   function load() {
     setLoading(true)
@@ -78,9 +80,10 @@ export default function ContactsPage() {
     <div className="contacts-page">
       <div className="contacts-page__header">
         <h1 className="contacts-page__title">Job Hunt Tracker</h1>
-        <button className="btn-primary" onClick={openAdd} disabled={loading}>
-          + Add Contact
-        </button>
+        <div className="contacts-page__header-actions">
+          <button className="btn-primary" onClick={openAdd} disabled={loading}>+ Add Contact</button>
+          <button className="btn-secondary" onClick={signOut} title={user?.email}>Sign out</button>
+        </div>
       </div>
 
       <DashboardBar contacts={contacts} />

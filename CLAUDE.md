@@ -67,9 +67,11 @@ Targeting Brisbane SaaS startups using the Wonsulting/Jonathan Javier method.
 ```js
 {
   id: string,
+  user_id: string,          // links to authenticated user
   name: string,
   role: string,
   company: string,
+  email: string | null,     // hiring manager email
   linkedinUrl: string,
   status: 'Not Contacted' | 'Messaged' | 'Replied' | 'Interview' | 'Closed',
   followUpDate: string | null,
