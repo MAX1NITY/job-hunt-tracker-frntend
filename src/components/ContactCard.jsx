@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import StatusBadge from './StatusBadge'
 import './ContactCard.css'
 
@@ -8,6 +9,13 @@ function isOverdue(followUpDate) {
 
 export default function ContactCard({ contact, onEdit, onDelete }) {
   const overdue = isOverdue(contact.followUpDate)
+  const [copied, setCopied] = useState(false)
+
+  function copyEmail() {
+    navigator.clipboard.writeText(contact.email)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
     <div className="contact-card">
@@ -16,7 +24,9 @@ export default function ContactCard({ contact, onEdit, onDelete }) {
           <h3 className="contact-card__name">{contact.name}</h3>
           <p className="contact-card__sub">{contact.role}{contact.role && contact.company ? ' · ' : ''}{contact.company}</p>
           {contact.email && (
-            <a href={`mailto:${contact.email}`} className="contact-card__email">{contact.email}</a>
+            <button className="contact-card__email" onClick={copyEmail}>
+              {copied ? '✓ Copied' : contact.email}
+            </button>
           )}
         </div>
         <StatusBadge status={contact.status} />
