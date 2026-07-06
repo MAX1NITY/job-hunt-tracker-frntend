@@ -27,20 +27,23 @@ All components built with plain CSS, one file per component (CLAUDE.md conventio
 
 Backend lives in `../backend/` (separate from the React project).
 
-**Supabase table schema:**
+**Supabase table schema (final, after auth migration):**
 ```sql
 CREATE TABLE contacts (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name          TEXT NOT NULL,
-  role          TEXT,
-  company       TEXT NOT NULL,
-  linkedin_url  TEXT,
-  status        TEXT NOT NULL DEFAULT 'Not Contacted',
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name           TEXT NOT NULL,
+  role           TEXT,
+  company        TEXT NOT NULL,
+  email          TEXT,
+  linkedin_url   TEXT,
+  status         TEXT NOT NULL DEFAULT 'Not Contacted',
   follow_up_date DATE,
-  notes         TEXT,
-  created_at    TIMESTAMPTZ DEFAULT NOW(),
-  updated_at    TIMESTAMPTZ DEFAULT NOW()
+  notes          TEXT,
+  user_id        UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at     TIMESTAMPTZ DEFAULT NOW(),
+  updated_at     TIMESTAMPTZ DEFAULT NOW()
 );
+-- RLS enabled, policy: auth.uid() = user_id (for authenticated role)
 ```
 
 - `backend/api/index.py` — FastAPI app, GET/POST/PUT/DELETE `/contacts`, handles camelCase ↔ snake_case conversion in `to_row()` / `to_contact()`
@@ -56,24 +59,70 @@ cd backend
 
 ---
 
+### Phase 2 (continued) — Google OAuth + Auth
+
+- `src/lib/supabase.js` — Supabase client (anon key, safe for frontend)
+- `src/hooks/useAuth.js` — session state via `onAuthStateChange`, `signInWithGoogle`, `signOut`
+- `src/pages/LoginPage.jsx` — centred card with Google sign-in button
+- `src/App.jsx` — protected routes: `/contacts` requires session, `/login` redirects away if already authed
+- `src/utils/api.js` — every request includes `Authorization: Bearer <access_token>` from current session
+- Backend: JWT verified via `supabase.auth.get_user(token)` (not manual PyJWT decode — avoids secret mismatch issues)
+- All queries filter by `user_id` so each user only sees their own contacts
+- `vercel.json` added to frontend for SPA fallback (fixes 404 on `/login` direct load)
+
+**Supabase settings required:**
+- Auth → Providers → Google → enabled (requires Google Cloud OAuth 2.0 credentials)
+- Auth → URL Configuration → Site URL: `https://job-hunt-tracker-frntend.vercel.app`
+- Auth → URL Configuration → Redirect URLs: add `/login` suffix variants for both prod and localhost
+
+**Vercel env vars:**
+
+| Project | Key | Value |
+|---|---|---|
+| Frontend | `VITE_SUPABASE_URL` | `https://qlgcpjtuulgjzokmspif.supabase.co` |
+| Frontend | `VITE_SUPABASE_ANON_KEY` | anon JWT (from Supabase API Keys) |
+| Frontend | `VITE_API_URL` | `https://job-hunt-tracker-bkend.vercel.app` |
+| Backend | `SUPABASE_URL` | `https://qlgcpjtuulgjzokmspif.supabase.co` |
+| Backend | `SUPABASE_SERVICE_KEY` | service_role key |
+| Backend | `ALLOWED_ORIGINS` | `*` |
+
+---
+
 ### Phase 3 — Polish + Deploy
 
 - `src/hooks/useToast.js` + `src/components/Toast` — auto-dismissing toasts (3s) for add/update/delete actions
 - `src/components/ContactCardSkeleton` — shimmer animation shown during initial load (3 placeholder cards)
 - Empty states: two distinct states — "No contacts yet" (with Add CTA) vs "No results" (with Clear filters CTA)
 - Mobile: `form-row` collapses to 1 column on <540px, dashboard bar hides divider on <480px
+- Email field on contact card — click to copy to clipboard (mailto: doesn't work without a default email client)
 
 ---
 
-### Bugs fixed during session
+### Bugs fixed
 
 **1. Double-slash URL (`//contacts`)**
 - Cause: `VITE_API_URL` env var on Vercel had a trailing slash
 - Fix: `src/utils/api.js` strips trailing slash with `.replace(/\/$/, '')`
 
 **2. CORS blocked on Vercel**
-- Cause: `ALLOWED_ORIGINS` env var was blank on Vercel, causing `"".split(",")` → `[""]` (no origins allowed). Also Vercel preview deployments have random-hash URLs not in the allowlist.
-- Fix: `backend/api/index.py` now filters empty strings and falls back to `["*"]`. `ALLOWED_ORIGINS=*` set on Vercel backend project.
+- Cause: `ALLOWED_ORIGINS` blank → `"".split(",")` = `[""]`. Also preview URLs have random hashes.
+- Fix: backend filters empty strings, falls back to `["*"]`. Set `ALLOWED_ORIGINS=*` on Vercel.
+
+**3. OAuth redirect stripping PKCE code**
+- Cause: Supabase redirected to `/` with `?code=`, React Router redirected to `/login` stripping the code before Supabase could exchange it.
+- Fix: `redirectTo` set to `${origin}/login` so Supabase lands directly on the right page.
+
+**4. 404 on `/login` direct load (Vercel)**
+- Cause: Vercel tried to serve `/login` as a real file — SPA routes don't exist as files.
+- Fix: `vercel.json` in frontend with `{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }`
+
+**5. 401 on `/contacts` despite valid session**
+- Cause: Manual PyJWT decode with `SUPABASE_JWT_SECRET` was failing (secret format mismatch).
+- Fix: Switched to `supabase.auth.get_user(token)` — delegates verification to Supabase directly.
+
+**6. Vite env vars missing in Vercel build**
+- Cause: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` not set in Vercel frontend project. Vite bakes these in at build time so they must be set before deploying.
+- Fix: Added both to Vercel frontend env vars and redeployed.
 
 ---
 
@@ -86,6 +135,4 @@ cd backend
 | Frontend URL | https://job-hunt-tracker-frntend.vercel.app |
 | Backend URL | https://job-hunt-tracker-bkend.vercel.app |
 | Supabase project | qlgcpjtuulgjzokmspif.supabase.co |
-| Backend venv | `backend/.venv` (gitignored) |
-
-**Note:** Service role key was shared in chat during setup — consider regenerating it in Supabase → Settings → API → Regenerate service_role key, then update the Vercel env var on the backend project.
+| Backend venv | `backend/.venv` — activate: `.venv\Scripts\activate` |
