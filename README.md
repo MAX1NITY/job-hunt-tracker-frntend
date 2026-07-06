@@ -1,16 +1,63 @@
-# React + Vite
+# Job Hunt Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A personal pipeline tracker for LinkedIn cold outreach — add contacts, track
+status (Not Contacted → Messaged → Replied → Interview → Closed), set
+follow-up dates, and see it all in one dashboard.
 
-Currently, two official plugins are available:
+**Live:** https://job-hunt-tracker-frntend.vercel.app
+**Backend repo:** https://github.com/MAX1NITY/job-hunt-tracker-bkend
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack
 
-## React Compiler
+- React + Vite (JSX, no TypeScript, plain CSS with CSS variables)
+- Supabase for auth (Google OAuth) — the frontend talks to Supabase directly
+  for login, and to the FastAPI backend (with a JWT) for contact data
+- react-router-dom for client-side routing
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+See [docs/case-study.md](docs/case-study.md) for the reasoning behind the
+auth, security, and API design decisions, and [docs/roadmap.md](docs/roadmap.md)
+for what's shipped and what's next.
 
-## Expanding the Oxlint configuration
+## Dev Commands
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```bash
+npm install       # install dependencies
+npm run dev       # start dev server
+npm run build     # production build
+npm run lint      # oxlint
+npm test          # run the unit/component test suite once
+npm run test:watch  # run tests in watch mode
+npm run test:e2e  # run Playwright end-to-end tests
+```
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and fill in:
+
+```
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+VITE_API_URL=
+VITE_SENTRY_DSN=   # optional — leave blank to disable error monitoring
+```
+
+## Testing
+
+Two layers:
+
+- **Unit/component** — [Vitest](https://vitest.dev) + [Testing Library](https://testing-library.com).
+  Tests live next to the code they cover (`ContactForm.jsx` / `ContactForm.test.jsx`).
+- **End-to-end** — [Playwright](https://playwright.dev), in `e2e/`. Seeds a fake
+  Supabase session into `localStorage` and stubs the backend via `page.route()`,
+  so it exercises real routing/rendering without needing a live Google OAuth
+  flow or database.
+
+CI runs lint, unit tests, a production build, and the E2E suite on every push
+and PR — see `.github/workflows/ci.yml`.
+
+## Error Monitoring
+
+[Sentry](https://sentry.io) is wired up (`src/lib/sentry.js`, an
+`ErrorBoundary` around `<App />` in `main.jsx`) but stays completely inert
+until `VITE_SENTRY_DSN` is set — no account or network calls otherwise. Create
+a free Sentry project and set the DSN as a Vercel env var to turn it on.
