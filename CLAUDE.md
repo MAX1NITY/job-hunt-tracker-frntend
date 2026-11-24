@@ -30,37 +30,18 @@ Targeting Brisbane SaaS startups using the Wonsulting/Jonathan Javier method.
 
 ## Styling Conventions
 
-- One .css file per component or page, named to match (e.g. ContactCard.css)
+- One .css file per component or page, named to match (e.g. ContactTable.css)
 - CSS variables defined in index.css under :root
 - Dark mode by default
 - Mobile-first layout
-- Use class names in kebab-case (e.g. .contact-card, .status-badge)
+- Use class names in kebab-case (e.g. .contact-row, .status-badge)
 
-## Design Tokens (index.css)
+## Design System
 
-```css
-:root {
-  --bg: #0f0f0f;
-  --surface: #1a1a1a;
-  --surface-2: #242424;
-  --border: #2e2e2e;
-  --text-primary: #f0f0f0;
-  --text-muted: #888;
-  --accent: #7c5cbf;
-  --accent-light: #a78bfa;
-  --radius: 10px;
-}
-```
-
-## Status Colours
-
-```css
---status-not-contacted: #555;
---status-messaged: #3b82f6;
---status-replied: #f59e0b;
---status-interview: #10b981;
---status-closed: #ef4444;
-```
+The visual system (dark graphite, one blue accent, Inter, Attio-style table
+with a stage sidebar and detail panel) is documented in DESIGN.md. Tokens live
+in `src/index.css` under `:root`; status colours are `--status-*` there.
+Product facts are in PRODUCT.md.
 
 ## Core Data Shape
 

@@ -1,71 +1,96 @@
 .access-page {
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
+  padding: 24px;
   background: var(--bg);
-  padding: 20px;
 }
 
 .access-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 48px 40px;
-  width: 100%;
-  max-width: 380px;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 12px;
-  text-align: center;
+  width: 100%;
+  max-width: 360px;
+  animation: access-in 320ms var(--ease-out);
+}
+
+@keyframes access-in {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+.access-logo {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 20px;
+  border-radius: 9px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
 }
 
 .access-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .access-sub {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin: 0 0 12px;
+  margin: 6px 0 24px;
+  color: var(--text-secondary);
+  line-height: 1.6;
 }
 
 .access-notice {
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  border: 1px solid rgba(240, 96, 93, 0.35);
+  border-radius: var(--radius-sm);
+  background: rgba(240, 96, 93, 0.1);
+  color: #ff9a97;
   font-size: 13px;
-  color: var(--status-closed);
-  margin: 0;
+}
+
+.access-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-muted);
+  transition: border-color 120ms, box-shadow 120ms;
+}
+
+.access-field:hover {
+  border-color: var(--text-muted);
+}
+
+.access-field:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .access-input {
-  background: var(--surface-2);
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: none;
   color: var(--text-primary);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 10px 12px;
   font-size: 14px;
 }
 
-.access-input:focus {
-  outline: none;
-  border-color: var(--accent-light);
+.access-input::placeholder {
+  color: var(--text-muted);
 }
 
 .access-btn {
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 20px;
+  height: 38px;
+  margin-top: 12px;
   font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.access-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }

@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import Icon from './Icon'
+import { STATUSES } from '../utils/statuses'
 import './ContactForm.css'
 
-const STATUSES = ['Not Contacted', 'Messaged', 'Replied', 'Interview', 'Closed']
 
 const EMPTY = {
   name: '',
@@ -31,16 +32,16 @@ export default function ContactForm({ contact, onSave, onClose, saving = false }
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={e => e.stopPropagation()}>
+      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="contact-form-title" onClick={e => e.stopPropagation()}>
         <div className="modal__header">
-          <h2 className="modal__title">{contact ? 'Edit Contact' : 'Add Contact'}</h2>
-          <button className="modal__close" onClick={onClose} aria-label="Close">✕</button>
+          <h2 className="modal__title" id="contact-form-title">{contact ? 'Edit contact' : 'New contact'}</h2>
+          <button className="modal__close" onClick={onClose} aria-label="Close"><Icon name="x" size={16} /></button>
         </div>
 
         <form className="modal__form" onSubmit={handleSubmit}>
           <div className="form-row">
             <label className="form-label">
-              Name *
+              <span>Name <span className="form-required">required</span></span>
               <input
                 className="form-input"
                 name="name"
@@ -64,7 +65,7 @@ export default function ContactForm({ contact, onSave, onClose, saving = false }
 
           <div className="form-row">
             <label className="form-label">
-              Company *
+              <span>Company <span className="form-required">required</span></span>
               <input
                 className="form-input"
                 name="company"
@@ -107,7 +108,7 @@ export default function ContactForm({ contact, onSave, onClose, saving = false }
           </div>
 
           <label className="form-label">
-            Follow-up Date
+            Follow-up date
             <input
               className="form-input"
               type="date"
@@ -124,7 +125,7 @@ export default function ContactForm({ contact, onSave, onClose, saving = false }
               name="notes"
               value={form.notes}
               onChange={handleChange}
-              placeholder="Any notes..."
+              placeholder="What you sent, what they said, next step"
               rows={3}
             />
           </label>

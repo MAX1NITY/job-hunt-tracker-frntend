@@ -1,12 +1,5 @@
+import { STATUS_KEYS } from '../utils/statuses'
 import './StatusBadge.css'
-
-const STATUS_KEYS = {
-  'Not Contacted': 'not-contacted',
-  'Messaged': 'messaged',
-  'Replied': 'replied',
-  'Interview': 'interview',
-  'Closed': 'closed',
-}
 
 export default function StatusBadge({ status }) {
   return (

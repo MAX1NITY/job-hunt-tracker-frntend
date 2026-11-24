@@ -1,17 +1,29 @@
 .status-badge {
-  display: inline-block;
-  padding: 3px 10px;
+  --c: var(--status-not-contacted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 8px;
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
   white-space: nowrap;
-  color: #fff;
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--c) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c) 28%, transparent);
 }
 
-.status-badge--not-contacted { background: var(--status-not-contacted); }
-.status-badge--messaged      { background: var(--status-messaged); }
-.status-badge--replied       { background: var(--status-replied); color: #000; }
-.status-badge--interview     { background: var(--status-interview); }
-.status-badge--closed        { background: var(--status-closed); }
+.status-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+.status-badge--not-contacted { --c: var(--status-not-contacted); }
+.status-badge--messaged { --c: var(--status-messaged); }
+.status-badge--replied { --c: var(--status-replied); }
+.status-badge--interview { --c: var(--status-interview); }
+.status-badge--closed { --c: var(--status-closed); }
