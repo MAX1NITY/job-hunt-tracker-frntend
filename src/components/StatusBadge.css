@@ -27,3 +27,4 @@
 .status-badge--replied { --c: var(--status-replied); }
 .status-badge--interview { --c: var(--status-interview); }
 .status-badge--closed { --c: var(--status-closed); }
+.status-badge--offer { --c: var(--status-offer); }

@@ -271,3 +271,7 @@
   from { background-position: 100% 0; }
   to { background-position: -100% 0; }
 }
+
+.contact-row__avatar--square {
+  border-radius: 6px;
+}

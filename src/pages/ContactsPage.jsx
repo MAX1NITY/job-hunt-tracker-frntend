@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback } from 'react'
-import { fetchContacts, createContact, updateContact, deleteContact } from '../utils/api'
+import { useState, useCallback } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { createContact, updateContact, deleteContact } from '../utils/api'
 import { useToast } from '../hooks/useToast'
+import { usePipeline } from '../hooks/usePipeline'
 import Sidebar from '../components/Sidebar'
 import ContactTable, { ContactTableSkeleton } from '../components/ContactTable'
 import ContactDetail from '../components/ContactDetail'
@@ -10,42 +12,22 @@ import Icon from '../components/Icon'
 import { byFollowUpUrgency } from '../utils/followUp'
 import './ContactsPage.css'
 
-const REJECTED = 'That access key was not accepted. Try again.'
-
 export default function ContactsPage({ onLock }) {
-  const [contacts, setContacts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [filterStatus, setFilterStatus] = useState('All')
+  const { contacts, setContacts, applications, loading, error, load, failed: fail } = usePipeline(onLock)
+  const [params, setParams] = useSearchParams()
+  const filterStatus = params.get('stage') ?? 'All'
   const [search, setSearch] = useState('')
-  const [selectedId, setSelectedId] = useState(null)
+  const [selectedId, setSelectedId] = useState(() => params.get('open'))
   const [modal, setModal] = useState(null) // null | 'add' | contact object
   const [saving, setSaving] = useState(false)
   const { toasts, showToast } = useToast()
-
-  function load() {
-    setLoading(true)
-    setError(null)
-    fetchContacts()
-      .then(setContacts)
-      .catch(err => {
-        if (err.code === 'UNAUTHORIZED') onLock(REJECTED)
-        else setError(err.message)
-      })
-      .finally(() => setLoading(false))
-  }
-
-  useEffect(() => { load() }, [])
 
   const closeDetail = useCallback(() => setSelectedId(null), [])
   function openAdd() { setModal('add') }
   function openEdit(contact) { setModal(contact) }
   function closeModal() { setModal(null) }
 
-  function failed(action, err) {
-    if (err.code === 'UNAUTHORIZED') return onLock(REJECTED)
-    showToast(`Failed to ${action}: ${err.message}`, 'error')
-  }
+  const failed = (action, err) => fail(showToast, action, err)
 
   async function handleSave(formData) {
     setSaving(true)
@@ -102,12 +84,7 @@ export default function ContactsPage({ onLock }) {
 
   return (
     <div className="app-shell">
-      <Sidebar
-        contacts={contacts}
-        filterStatus={filterStatus}
-        onFilter={setFilterStatus}
-        onLock={onLock}
-      />
+      <Sidebar contacts={contacts} applications={applications} onLock={onLock} />
 
       <main className="workspace">
         <header className="topbar">
@@ -155,7 +132,7 @@ export default function ContactsPage({ onLock }) {
               <p className="state__body">
                 {q ? `Nobody in ${title.toLowerCase()} matches “${search.trim()}”.` : `No contacts are in ${title} right now.`}
               </p>
-              <button className="btn-secondary" onClick={() => { setFilterStatus('All'); setSearch('') }}>
+              <button className="btn-secondary" onClick={() => { setParams({}); setSearch('') }}>
                 Clear filters
               </button>
             </div>
@@ -170,6 +147,7 @@ export default function ContactsPage({ onLock }) {
       {selected && (
         <ContactDetail
           contact={selected}
+          applications={applications.filter(a => a.contactId === selected.id)}
           onClose={closeDetail}
           onEdit={openEdit}
           onDelete={handleDelete}

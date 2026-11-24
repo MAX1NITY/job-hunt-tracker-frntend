@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { getAccessKey, setAccessKey, clearAccessKey } from './utils/accessKey'
 import ContactsPage from './pages/ContactsPage'
+import ApplicationsPage from './pages/ApplicationsPage'
 import AccessPage from './pages/AccessPage'
 
 function App() {
@@ -14,11 +15,11 @@ function App() {
     setUnlocked(true)
   }
 
-  function lock(reason = '') {
+  const lock = useCallback((reason = '') => {
     clearAccessKey()
     setNotice(reason)
     setUnlocked(false)
-  }
+  }, [])
 
   if (!unlocked) return <AccessPage onSubmit={unlock} notice={notice} />
 
@@ -26,6 +27,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/contacts" element={<ContactsPage onLock={lock} />} />
+        <Route path="/applications" element={<ApplicationsPage onLock={lock} />} />
         <Route path="*" element={<Navigate to="/contacts" replace />} />
       </Routes>
     </BrowserRouter>

@@ -51,3 +51,19 @@ export function updateContact(id, data) {
 export function deleteContact(id) {
   return request(`/contacts/${id}`, { method: 'DELETE' })
 }
+
+export function fetchApplications() {
+  return request('/applications')
+}
+
+export function createApplication(data) {
+  return request('/applications', { method: 'POST', body: JSON.stringify(data) })
+}
+
+export function updateApplication(id, data) {
+  return request(`/applications/${id}`, { method: 'PUT', body: JSON.stringify(data) })
+}
+
+export function deleteApplication(id) {
+  return request(`/applications/${id}`, { method: 'DELETE' })
+}

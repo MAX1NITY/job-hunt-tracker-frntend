@@ -30,8 +30,13 @@
   list-style: none;
 }
 
+.sidebar__li--offpage {
+  display: none;
+}
+
 .sidebar__item {
   display: flex;
+  text-decoration: none;
   align-items: center;
   gap: 8px;
   height: 30px;
@@ -72,6 +77,7 @@
 .sidebar__dot--replied { background: var(--status-replied); }
 .sidebar__dot--interview { background: var(--status-interview); }
 .sidebar__dot--closed { background: var(--status-closed); }
+.sidebar__dot--offer { background: var(--status-offer); }
 
 .sidebar__count {
   color: var(--text-muted);
@@ -123,6 +129,10 @@
     font-size: 14px;
   }
 
+  .sidebar__li--offpage {
+    display: list-item;
+  }
+
   .sidebar__heading {
     display: block;
     padding: 0 8px 6px;
@@ -137,6 +147,10 @@
     gap: 1px;
     overflow: visible;
     mask-image: none;
+  }
+
+  .sidebar__heading:not(:first-child) {
+    margin-top: 20px;
   }
 
   .sidebar__item {

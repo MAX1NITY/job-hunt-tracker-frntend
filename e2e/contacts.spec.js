@@ -10,6 +10,8 @@ async function unlock(page, key = 'test-key') {
     ({ k, v }) => window.localStorage.setItem(k, v),
     { k: STORAGE_KEY, v: key }
   )
+  // Every page loads applications too; default to none unless a test overrides it.
+  await page.route('http://localhost:8000/applications', route => route.fulfill({ json: [] }))
 }
 
 test('shows the access key screen when no key is stored', async ({ page }) => {
@@ -86,4 +88,45 @@ test('Lock forgets the key and shows the key screen', async ({ page }) => {
 
   await expect(page.getByLabel('Access key')).toBeVisible()
   expect(await page.evaluate(k => localStorage.getItem(k), STORAGE_KEY)).toBeNull()
+})
+
+test('adds an application and a new person in one go', async ({ page }) => {
+  await unlock(page)
+
+  let contacts = []
+  let applications = []
+  const stamp = () => ({ id: `id-${Math.random()}`, createdAt: '', updatedAt: '' })
+  await page.route('http://localhost:8000/contacts', async (route) => {
+    const req = route.request()
+    if (req.method() === 'GET') return route.fulfill({ json: contacts })
+    const created = { ...stamp(), status: 'Not Contacted', ...req.postDataJSON() }
+    contacts = [created, ...contacts]
+    return route.fulfill({ status: 201, json: created })
+  })
+  await page.route('http://localhost:8000/applications', async (route) => {
+    const req = route.request()
+    if (req.method() === 'GET') return route.fulfill({ json: applications })
+    const created = { ...stamp(), ...req.postDataJSON() }
+    applications = [created, ...applications]
+    return route.fulfill({ status: 201, json: created })
+  })
+
+  await page.goto('/applications')
+  await expect(page.getByText('No applications yet')).toBeVisible()
+  await page.getByRole('button', { name: '+ Add Application' }).first().click()
+
+  const modal = page.locator('.modal')
+  await modal.getByPlaceholder('Company name').fill('Canva')
+  await modal.getByPlaceholder('e.g. Junior Frontend Engineer').fill('Frontend Engineer')
+  await modal.getByLabel('Contact').selectOption({ label: '+ Add a new person…' })
+  await modal.getByPlaceholder('Full name').fill('Grace Hopper')
+  await modal.getByRole('button', { name: 'Add Application' }).click()
+
+  await expect(page.getByText('Grace Hopper saved to Contacts')).toBeVisible()
+  expect(contacts[0]).toMatchObject({ name: 'Grace Hopper', company: 'Canva' })
+  expect(applications[0].contactId).toBe(contacts[0].id)
+
+  // The application's panel links back to the person.
+  await page.getByRole('button', { name: 'Frontend Engineer' }).click()
+  await expect(page.getByRole('link', { name: 'Grace Hopper' })).toBeVisible()
 })

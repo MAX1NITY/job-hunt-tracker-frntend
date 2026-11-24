@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Icon from './Icon'
+import StatusBadge from './StatusBadge'
 import { STATUSES } from '../utils/statuses'
 import { describeFollowUp, formatLongDate } from '../utils/followUp'
 import './ContactDetail.css'
 
-export default function ContactDetail({ contact, onClose, onEdit, onDelete, onStatusChange }) {
+export default function ContactDetail({ contact, applications = [], onClose, onEdit, onDelete, onStatusChange }) {
   const [copied, setCopied] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const closeRef = useRef(null)
@@ -110,6 +112,22 @@ export default function ContactDetail({ contact, onClose, onEdit, onDelete, onSt
             ) : <span className="contact-detail__empty">Not set</span>}
           </dd>
         </dl>
+
+        {applications.length > 0 && (
+          <section className="contact-detail__notes">
+            <h3>Applications</h3>
+            <ul className="contact-detail__apps">
+              {applications.map(a => (
+                <li key={a.id}>
+                  <Link to={`/applications?open=${a.id}`} className="contact-detail__app">
+                    <span className="contact-detail__truncate">{a.role} · {a.company}</span>
+                    <StatusBadge status={a.status} />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <section className="contact-detail__notes">
           <h3>Notes</h3>
