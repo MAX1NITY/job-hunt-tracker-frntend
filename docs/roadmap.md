@@ -44,8 +44,15 @@
 
 - Frontend: https://job-hunt-tracker-frntend.vercel.app
 - Backend: https://job-hunt-tracker-bkend.vercel.app
-- Database: Supabase (qlgcpjtuulgjzokmspif)
+- Database: Neon (project patient-hill-25634112). The old Supabase project is paused.
 
 ## Session Notes
 
 @docs/session-notes.md
+
+## Phase 4 — Single-user on Neon (no login)
+
+- [x] Remove Google sign-in, Supabase Auth and per-user scoping (app is only for me)
+- [x] Move the database from Supabase to Neon Postgres (Sydney region)
+- [x] Backend talks to Postgres directly (psycopg); one `X-Access-Key` header replaces JWTs
+- [x] Frontend asks for the access key once per device and remembers it

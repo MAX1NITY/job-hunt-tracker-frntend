@@ -10,13 +10,14 @@ follow-up dates, and see it all in one dashboard.
 ## Stack
 
 - React + Vite (JSX, no TypeScript, plain CSS with CSS variables)
-- Supabase for auth (Google OAuth) — the frontend talks to Supabase directly
-  for login, and to the FastAPI backend (with a JWT) for contact data
+- Single-user, no accounts: an access key (typed once per device, kept in
+  `localStorage`) is sent to the FastAPI backend in an `X-Access-Key` header.
+  Data lives in Neon Postgres, behind the backend.
 - react-router-dom for client-side routing
 
-See [docs/case-study.md](docs/case-study.md) for the reasoning behind the
-auth, security, and API design decisions, and [docs/roadmap.md](docs/roadmap.md)
-for what's shipped and what's next.
+See [docs/case-study.md](docs/case-study.md) for the original design reasoning
+(it describes the earlier Supabase + Google login setup, now replaced), and
+[docs/roadmap.md](docs/roadmap.md) for what's shipped and what's next.
 
 ## Dev Commands
 
@@ -35,8 +36,6 @@ npm run test:e2e  # run Playwright end-to-end tests
 Copy `.env.example` to `.env` and fill in:
 
 ```
-VITE_SUPABASE_URL=
-VITE_SUPABASE_ANON_KEY=
 VITE_API_URL=
 VITE_SENTRY_DSN=   # optional — leave blank to disable error monitoring
 ```
@@ -47,10 +46,9 @@ Two layers:
 
 - **Unit/component** — [Vitest](https://vitest.dev) + [Testing Library](https://testing-library.com).
   Tests live next to the code they cover (`ContactForm.jsx` / `ContactForm.test.jsx`).
-- **End-to-end** — [Playwright](https://playwright.dev), in `e2e/`. Seeds a fake
-  Supabase session into `localStorage` and stubs the backend via `page.route()`,
-  so it exercises real routing/rendering without needing a live Google OAuth
-  flow or database.
+- **End-to-end** — [Playwright](https://playwright.dev), in `e2e/`. Seeds an access
+  key into `localStorage` and stubs the backend via `page.route()`, so it
+  exercises real routing/rendering without needing a live backend or database.
 
 CI runs lint, unit tests, a production build, and the E2E suite on every push
 and PR — see `.github/workflows/ci.yml`.

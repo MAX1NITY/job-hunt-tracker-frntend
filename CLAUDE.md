@@ -9,7 +9,7 @@ Targeting Brisbane SaaS startups using the Wonsulting/Jonathan Javier method.
 
 - Frontend: React + Vite (JSX, no TypeScript, no Tailwind)
 - Styling: Plain CSS with CSS variables (one .css file per component/page)
-- Backend (Phase 2): FastAPI + Supabase (PostgreSQL)
+- Backend: FastAPI + Neon (PostgreSQL); single-user, protected by an access key (no login)
 - Deployment: Vercel
 
 ## Dev Commands
@@ -67,7 +67,6 @@ Targeting Brisbane SaaS startups using the Wonsulting/Jonathan Javier method.
 ```js
 {
   id: string,
-  user_id: string,          // links to authenticated user
   name: string,
   role: string,
   company: string,
