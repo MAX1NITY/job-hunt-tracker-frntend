@@ -1,19 +1,33 @@
-import { supabase } from '../lib/supabase'
+import { getAccessKey, clearAccessKey } from './accessKey'
 
 const BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000').replace(/\/$/, '')
 
+// Thrown when there is no access key or the backend rejects it, so the UI can
+// send the user back to the key screen instead of showing a raw error.
+export class UnauthorizedError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = 'UnauthorizedError'
+    this.code = 'UNAUTHORIZED'
+  }
+}
+
 async function request(path, options = {}) {
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) throw new Error('Not authenticated')
+  const key = getAccessKey()
+  if (!key) throw new UnauthorizedError('No access key')
 
   const res = await fetch(`${BASE}${path}`, {
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session.access_token}`,
+      'X-Access-Key': key,
     },
     ...options,
   })
 
+  if (res.status === 401) {
+    clearAccessKey()
+    throw new UnauthorizedError('Access key was not accepted')
+  }
   if (!res.ok) {
     const text = await res.text()
     throw new Error(text || `HTTP ${res.status}`)

@@ -1,19 +1,32 @@
+import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useAuth } from './hooks/useAuth'
+import { getAccessKey, setAccessKey, clearAccessKey } from './utils/accessKey'
 import ContactsPage from './pages/ContactsPage'
-import LoginPage from './pages/LoginPage'
+import AccessPage from './pages/AccessPage'
 
 function App() {
-  const { user, loading } = useAuth()
+  const [unlocked, setUnlocked] = useState(() => !!getAccessKey())
+  const [notice, setNotice] = useState('')
 
-  if (loading) return <div className="app-loading" />
+  function unlock(key) {
+    setAccessKey(key)
+    setNotice('')
+    setUnlocked(true)
+  }
+
+  function lock(reason = '') {
+    clearAccessKey()
+    setNotice(reason)
+    setUnlocked(false)
+  }
+
+  if (!unlocked) return <AccessPage onSubmit={unlock} notice={notice} />
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={user ? <Navigate to="/contacts" replace /> : <LoginPage />} />
-        <Route path="/contacts" element={user ? <ContactsPage /> : <Navigate to="/login" replace />} />
-        <Route path="/" element={<Navigate to={user ? '/contacts' : '/login'} replace />} />
+        <Route path="/contacts" element={<ContactsPage onLock={lock} />} />
+        <Route path="*" element={<Navigate to="/contacts" replace />} />
       </Routes>
     </BrowserRouter>
   )

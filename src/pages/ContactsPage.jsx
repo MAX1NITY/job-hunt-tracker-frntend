@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { fetchContacts, createContact, updateContact, deleteContact } from '../utils/api'
 import { useToast } from '../hooks/useToast'
-import { useAuth } from '../hooks/useAuth'
 import ContactCard from '../components/ContactCard'
 import ContactCardSkeleton from '../components/ContactCardSkeleton'
 import ContactForm from '../components/ContactForm'
@@ -11,7 +10,7 @@ import './ContactsPage.css'
 
 const ALL_STATUSES = ['Not Contacted', 'Messaged', 'Replied', 'Interview', 'Closed']
 
-export default function ContactsPage() {
+export default function ContactsPage({ onLock }) {
   const [contacts, setContacts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -20,14 +19,16 @@ export default function ContactsPage() {
   const [modal, setModal] = useState(null) // null | 'add' | contact object
   const [saving, setSaving] = useState(false)
   const { toasts, showToast } = useToast()
-  const { user, signOut } = useAuth()
 
   function load() {
     setLoading(true)
     setError(null)
     fetchContacts()
       .then(setContacts)
-      .catch(err => setError(err.message))
+      .catch(err => {
+        if (err.code === 'UNAUTHORIZED') onLock('That access key was not accepted. Try again.')
+        else setError(err.message)
+      })
       .finally(() => setLoading(false))
   }
 
@@ -51,6 +52,7 @@ export default function ContactsPage() {
       }
       closeModal()
     } catch (err) {
+      if (err.code === 'UNAUTHORIZED') return onLock('That access key was not accepted. Try again.')
       showToast(`Failed to save: ${err.message}`, 'error')
     } finally {
       setSaving(false)
@@ -63,6 +65,7 @@ export default function ContactsPage() {
       setContacts(prev => prev.filter(c => c.id !== id))
       showToast('Contact deleted')
     } catch (err) {
+      if (err.code === 'UNAUTHORIZED') return onLock('That access key was not accepted. Try again.')
       showToast(`Failed to delete: ${err.message}`, 'error')
     }
   }
@@ -82,7 +85,7 @@ export default function ContactsPage() {
         <h1 className="contacts-page__title">Job Hunt Tracker</h1>
         <div className="contacts-page__header-actions">
           <button className="btn-primary" onClick={openAdd} disabled={loading}>+ Add Contact</button>
-          <button className="btn-secondary" onClick={signOut} title={user?.email}>Sign out</button>
+          <button className="btn-secondary" onClick={() => onLock()} title="Forget the access key on this device">Lock</button>
         </div>
       </div>
 

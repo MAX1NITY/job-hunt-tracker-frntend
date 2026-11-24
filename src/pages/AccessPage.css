@@ -1,4 +1,4 @@
-.login-page {
+.access-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -7,7 +7,7 @@
   padding: 20px;
 }
 
-.login-card {
+.access-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -16,41 +16,56 @@
   max-width: 380px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: 12px;
   text-align: center;
 }
 
-.login-title {
+.access-title {
   font-size: 24px;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
 }
 
-.login-sub {
+.access-sub {
   font-size: 14px;
   color: var(--text-muted);
   margin: 0 0 12px;
 }
 
-.login-google-btn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #fff;
-  color: #333;
-  border: 1px solid #ddd;
+.access-notice {
+  font-size: 13px;
+  color: var(--status-closed);
+  margin: 0;
+}
+
+.access-input {
+  background: var(--surface-2);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.access-input:focus {
+  outline: none;
+  border-color: var(--accent-light);
+}
+
+.access-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
   border-radius: 6px;
   padding: 10px 20px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: box-shadow 0.15s;
-  width: 100%;
-  justify-content: center;
 }
 
-.login-google-btn:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+.access-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
